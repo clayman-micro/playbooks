@@ -1,0 +1,5 @@
+---
+
+# Common settings
+private_network: "{{ ansible_eth1['ipv4'] }}"
+public_network: "{{ ansible_eth0['ipv4'] }}"

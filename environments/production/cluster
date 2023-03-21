@@ -1,0 +1,29 @@
+localhost ansible_connection=local ansible_python_interpreter=/Users/clayman/Developer/micro/playbooks/.venv/bin/python3
+
+[production]
+alpha ansible_host=185.46.10.183  ansible_ssh_private_key_file=environments/production/.credentials/alpha/users/clayman/id_rsa ansible_python_interpreter=/usr/bin/python3
+omega ansible_host=46.183.163.68  ansible_ssh_private_key_file=environments/production/.credentials/omega/users/clayman/id_rsa ansible_python_interpreter=/usr/bin/python3
+delta ansible_host=46.183.163.197 ansible_ssh_private_key_file=environments/production/.credentials/delta/users/clayman/id_rsa ansible_python_interpreter=/usr/bin/python3
+gamma ansible_host=95.163.243.236 ansible_ssh_private_key_file=environments/production/.credentials/gamma/users/clayman/id_rsa ansible_python_interpreter=/usr/bin/python3
+
+[production:vars]
+tier=production
+
+
+[all:vars]
+domain=clayman.pro
+
+
+[servers:children]
+production
+
+[servers:vars]
+ansible_user=clayman
+
+[master]
+alpha
+
+[workers]
+omega
+delta
+gamma

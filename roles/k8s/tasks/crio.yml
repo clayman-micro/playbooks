@@ -1,0 +1,40 @@
+---
+
+- name: Add libcontainers apt-key
+  shell: curl -L https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/Debian_11/Release.key | gpg --dearmor -o /etc/apt/trusted.gpg.d/libcontainers-archive-keyring.gpg
+  args:
+    creates: /etc/apt/trusted.gpg.d/libcontainers-archive-keyring.gpg
+
+- name: Add libcontainers APT repository
+  ansible.builtin.apt_repository:
+    repo: deb [signed-by=/etc/apt/trusted.gpg.d/libcontainers-archive-keyring.gpg] https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/Debian_11/ /
+    state: present
+    filename: 'libcontainers'
+
+- name: Add CRI-O apt-key
+  shell: curl -L https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/1.23/Debian_11/Release.key | gpg --dearmor -o /etc/apt/trusted.gpg.d/libcontainers-crio-archive-keyring.gpg
+  args:
+    creates: /etc/apt/trusted.gpg.d/libcontainers-crio-archive-keyring.gpg
+
+- name: Add CRI-O APT repository
+  ansible.builtin.apt_repository:
+    repo: deb [signed-by=/etc/apt/trusted.gpg.d/libcontainers-crio-archive-keyring.gpg] https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/1.23/Debian_11/ /
+    state: present
+    filename: 'crio'
+
+- name: Install packages
+  apt:
+    name:
+      - cri-o
+      - cri-o-runc
+      - cri-tools
+    state: present
+    update_cache: true
+
+- name: Assemble cri-o config
+  template: src=crio dest=/etc/crio/crio.conf.d/02-cgroup-manager.conf backup=true mode=0644
+
+- name: Make sure crio service unit is running
+  ansible.builtin.systemd:
+    state: restarted
+    name: crio

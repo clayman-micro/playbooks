@@ -1,0 +1,22 @@
+---
+
+- import_tasks: crio.yml
+- import_tasks: kubernetes.yml
+
+- name: Add modules
+  community.general.modprobe:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - overlay
+    - br_netfilter
+
+- name: Update sysctl params
+  ansible.posix.sysctl:
+    name: "{{ item }}"
+    value: '1'
+    sysctl_set: yes
+  with_items:
+    - net.bridge.bridge-nf-call-iptables
+    - net.bridge.bridge-nf-call-ip6tables
+    - net.ipv4.ip_forward

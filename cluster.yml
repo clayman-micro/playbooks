@@ -1,0 +1,88 @@
+---
+
+- hosts: localhost
+
+  tasks:
+    - name: Create .kube directory
+      file: path="{{ ansible_user_dir }}/.kube" state=directory mode=0755
+
+
+- hosts: master
+  become: yes
+
+  roles:
+    - role: k8s
+
+  tasks:
+    - name: Initialize the cluster
+      shell: kubeadm init --pod-network-cidr=10.0.0.1/8 --service-cidr=192.168.0.1/16 >> cluster_initialized.txt
+      args:
+        chdir: $HOME
+        creates: cluster_initialized.txt
+      tags:
+        - k8s
+
+    - name: Create .kube directory
+      file: path=$HOME/.kube state=directory mode=0755
+      tags:
+        - k8s
+
+    - name: Copy admin.conf to user's kube config
+      copy: src=/etc/kubernetes/admin.conf dest=$HOME/.kube/config remote_src=yes mode=0600
+      tags:
+        - k8s
+
+    - name: Download admin.conf to user's kube config
+      fetch: src=/root/.kube/config dest={{ hostvars['localhost'].ansible_user_dir }}/.kube/micro flat=yes
+      become: true
+      tags:
+        - k8s
+
+    - name: Get join command
+      shell: kubeadm token create --print-join-command >> /tmp/join_command.txt
+      args:
+        creates: /tmp/join_command.txt
+      become: true
+      tags:
+        - k8s
+
+    - name: Download join_command
+      fetch:
+        src: /tmp/join_command.txt
+        dest: /tmp/join_command.txt
+        flat: yes
+      tags:
+        - k8s
+
+    - name: Install Helm
+      import_role:
+        name: k8s
+        tasks_from: helm
+      become: true
+      tags:
+        - k8s
+
+
+- hosts: workers
+  become: yes
+
+  roles:
+    - role: k8s
+
+  tasks:
+    - name: Upload join_command
+      ansible.builtin.copy:
+        src: /tmp/join_command.txt
+        dest: /tmp/
+        owner: root
+        group: root
+        mode: u+rw,g-wx,o-rwx
+      tags:
+        - k8s
+
+    - name: Join cluster
+      shell: "{{ lookup('file', '/tmp/join_command.txt') }}"  # noqa 305
+      args:
+        creates: /etc/kubernetes/kubelet.conf
+      tags:
+        - k8s
