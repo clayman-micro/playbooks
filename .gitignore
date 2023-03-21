@@ -1,0 +1,9 @@
+**/.certificates
+**/.credentials
+**/*.retry
+.env
+.envrc
+.vagrant
+.venv
+.vscode/tags
+roles/vendor
