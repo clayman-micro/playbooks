@@ -11,11 +11,30 @@
     state: present
     filename: 'kubernetes'
 
-- name: Install kubelet
+- name: Unhold packages
+  ansible.builtin.dpkg_selections:
+    name: "{{ item }}"
+    selection: install
+  with_items:
+    - kubeadm
+    - kubectl
+    - kubelet
+
+- name: Install packages
   apt:
     name:
-      - kubelet
-      - kubeadm
-      - kubectl
+      - "kubeadm={{ k8s_version }}"
+      - "kubectl={{ k8s_version }}"
+      - "kubelet={{ k8s_version }}"
     state: present
+    allow_downgrade: true
     update_cache: true
+
+- name: Hold packages
+  ansible.builtin.dpkg_selections:
+    name: "{{ item }}"
+    selection: hold
+  with_items:
+    - kubeadm
+    - kubectl
+    - kubelet

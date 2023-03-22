@@ -11,9 +11,23 @@
     state: present
     filename: helm
 
+- name: Unhold packages
+  ansible.builtin.dpkg_selections:
+    name: "{{ item }}"
+    selection: install
+  with_items:
+    - helm
+
 - name: Install Helm
   apt:
     name:
-      - helm
+      - "helm={{ helm_version }}"
     state: present
     update_cache: yes
+
+- name: Hold packages
+  ansible.builtin.dpkg_selections:
+    name: "{{ item }}"
+    selection: hold
+  with_items:
+    - helm
