@@ -10,8 +10,60 @@
 - hosts: master
   become: yes
 
+  vars:
+    nfs_server_exports:
+      - export:
+        access:
+          - hostname: '{{ private_network.address }}/12'
+            options:
+              - 'rw'
+              - 'sync'
+              - 'no_subtree_check'
+              - 'no_root_squash'
+        mode: "u=rwx,g=rx,o=rx"
+        path: '/mnt/k8s/traefik'
+        owner: 65532
+        group: 65532
+      - export:
+        access:
+          - hostname: '{{ private_network.address }}/12'
+            options:
+              - 'rw'
+              - 'sync'
+              - 'no_subtree_check'
+              - 'no_root_squash'
+        mode: "u=rwx,g=rx,o=rx"
+        path: /mnt/k8s/rabbitmq/0
+        owner: 999
+        group: 999
+      - export:
+        access:
+          - hostname: '{{ private_network.address }}/12'
+            options:
+              - 'rw'
+              - 'sync'
+              - 'no_subtree_check'
+              - 'no_root_squash'
+        mode: "u=rwx,g=rx,o=rx"
+        path: /mnt/k8s/rabbitmq/1
+        owner: 999
+        group: 999
+      - export:
+        access:
+          - hostname: '{{ private_network.address }}/12'
+            options:
+              - 'rw'
+              - 'sync'
+              - 'no_subtree_check'
+              - 'no_root_squash'
+        mode: "u=rwx,g=rx,o=rx"
+        path: /mnt/k8s/rabbitmq/2
+        owner: 999
+        group: 999
+
   roles:
     - role: k8s
+    - role: nfs
 
   tasks:
     - name: Initialize the cluster
@@ -86,3 +138,10 @@
         creates: /etc/kubernetes/kubelet.conf
       tags:
         - k8s
+
+    - name: Install nfs-сlient
+      apt:
+        name:
+          - nfs-common
+      tags:
+        - nfs
