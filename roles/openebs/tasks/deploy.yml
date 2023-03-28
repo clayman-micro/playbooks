@@ -1,0 +1,8 @@
+---
+
+- name: Deploy Openebs operator
+  kubernetes.core.helm:
+    name: openebs
+    chart_ref: openebs/openebs
+    release_namespace: "{{ namespace }}"
+    update_repo_cache: yes
