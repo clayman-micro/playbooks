@@ -1,0 +1,17 @@
+---
+
+namespace: traefik
+repo: https://helm.traefik.io/traefik
+
+letsencrypt_email: johndoe@example.com
+
+# Persistent Volume
+pv_name: traefik
+pv_size: 1G
+pv_storage_class_name: nfs
+pv_nfs_path: /mnt/k8s/traefik
+pv_nfs_server: 127.0.0.1
+
+pvc_name: traefik-data
+pvc_size: 1G
+pvc_storage_class_name: nfs

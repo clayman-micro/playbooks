@@ -1,0 +1,40 @@
+---
+
+- name: Add persistent volume
+  kubernetes.core.k8s:
+    definition:
+      apiVersion: v1
+      kind: PersistentVolume
+      metadata:
+        name: "{{ pv_name }}"
+        annotations:
+          pv.beta.kubernetes.io/gid: "65532"
+      spec:
+        capacity:
+          storage: "{{ pv_size }}"
+        volumeMode: Filesystem
+        accessModes:
+          - ReadWriteMany
+        persistentVolumeReclaimPolicy: Retain
+        storageClassName: "{{ pv_storage_class_name }}"
+        nfs:
+          path: "{{ pv_nfs_path }}"
+          server: "{{ pv_nfs_server }}"
+    state: present
+
+- name: Add persistent volume claim
+  kubernetes.core.k8s:
+    definition:
+      apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        name: "{{ pvc_name }}"
+        namespace: "{{ namespace }}"
+      spec:
+        storageClassName: "{{ pvc_storage_class_name }}"
+        accessModes:
+          - ReadWriteMany
+        resources:
+          requests:
+            storage: "{{ pvc_size }}"
+    state: present

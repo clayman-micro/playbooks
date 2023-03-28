@@ -145,3 +145,17 @@
           - nfs-common
       tags:
         - nfs
+
+
+- hosts: master
+  become: yes
+
+  vars:
+    pv_nfs_path: /mnt/k8s/traefik
+    pv_nfs_server: 172.16.0.2
+
+    letsencrypt_email: sumorokov.k@gmail.com
+
+  roles:
+    - role: openebs
+    - role: traefik
