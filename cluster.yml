@@ -11,6 +11,8 @@
   become: yes
 
   vars:
+    k8s_pod_network_cidr: 10.0.0.1/8
+
     nfs_server_exports:
       - export:
         access:
@@ -67,7 +69,7 @@
 
   tasks:
     - name: Initialize the cluster
-      shell: kubeadm init --pod-network-cidr=10.0.0.1/8 --service-cidr=192.168.0.1/16 >> cluster_initialized.txt
+      shell: "kubeadm init --pod-network-cidr={{ k8s_pod_network_cidr }} --service-cidr=192.168.0.1/16 >> cluster_initialized.txt"
       args:
         chdir: $HOME
         creates: cluster_initialized.txt
@@ -114,6 +116,15 @@
       tags:
         - k8s
 
+    - name: Setup network
+      import_role:
+        name: k8s
+        tasks_from: network
+      become: true
+      tags:
+        - k8s
+        - network
+
 
 - hosts: workers
   become: yes
@@ -158,4 +169,6 @@
 
   roles:
     - role: openebs
+    - role: prometheus
+    - role: metrics-server
     - role: traefik
