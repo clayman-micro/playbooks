@@ -1,0 +1,22 @@
+---
+
+- name: Deploy Prometheus operator
+  kubernetes.core.helm:
+    name: monitoring
+    chart_ref: prometheus-community/kube-prometheus-stack
+    release_namespace: "{{ namespace }}"
+    update_repo_cache: yes
+    values:
+      prometheus:
+        prometheusSpec:
+          nodeSelector:
+            node-role.kubernetes.io/monitoring: ""
+          retention: 14d
+          storageSpec:
+            volumeClaimTemplate:
+              spec:
+                storageClassName: openebs-hostpath
+                accessModes: ["ReadWriteOnce"]
+                resources:
+                  requests:
+                    storage: 40Gi

@@ -1,0 +1,13 @@
+---
+
+- name: Create namespace
+  kubernetes.core.k8s:
+    kind: Namespace
+    api_version: v1
+    name: "{{ namespace }}"
+    state: present
+
+- name: Add stable chart repo
+  kubernetes.core.helm_repository:
+    name: prometheus-community
+    repo_url: https://prometheus-community.github.io/helm-charts

@@ -1,0 +1,29 @@
+---
+
+- name: Create namespace
+  kubernetes.core.k8s:
+    kind: Namespace
+    api_version: v1
+    name: metrics-server
+    state: present
+  tags:
+    - metrics-server
+
+- name: Add stable chart repo
+  kubernetes.core.helm_repository:
+    name: metrics-server
+    repo_url: https://kubernetes-sigs.github.io/metrics-server/
+  tags:
+    - metrics-server
+
+- name: Deploy metrics server
+  kubernetes.core.helm:
+    name: metrics-server
+    chart_ref: metrics-server/metrics-server
+    release_namespace: metrics-server
+    update_repo_cache: yes
+    values:
+      args:
+        - "--kubelet-insecure-tls"
+  tags:
+    - metrics-server
