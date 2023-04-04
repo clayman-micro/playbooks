@@ -1,34 +1,6 @@
 ---
 
-- name: Install required packages
-  apt:
-    name:
-      - apt-transport-https
-      - binutils
-      - curl
-      - gcc
-      - g++
-      - git
-      - iptables
-      - mc
-      - net-tools
-      - network-manager
-      - tmux
-      - zsh
-      - python3-passlib
-      - python3-setuptools
-      - python3-pip
-      - sudo
-    update_cache: yes
-  tags:
-    - common
-
-- name: Install python packages
-  pip:
-    name:
-      - jsondiff
-      - pyyaml
-      - openshift
+- import_tasks: install.yml
   tags:
     - common
 
@@ -36,9 +8,12 @@
   tags:
     - common
 
+- import_tasks: network.yml
+  tags:
+    - common
+
 - name: Configure timezone
   shell: echo "{{ timezone }}" > /etc/timezone
-  become: true
   when: "ansible_distribution == 'Debian'"
   notify: 'apply timezone'
   tags:
@@ -46,17 +21,7 @@
 
 - name: return motd to registered var
   command: "cp /usr/share/zoneinfo/{{ timezone }} /etc/localtime"
-  become: true
   when: "ansible_distribution == 'Debian'"
   notify: 'apply timezone'
   tags:
     - common
-
-- name: Connect to private network
-  community.general.nmcli:
-    conn_name: private-network
-    ifname: 'eth1'
-    type: ethernet
-    ip4: "{{ private_host }}/12"
-    mtu: 1450
-    state: present

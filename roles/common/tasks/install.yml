@@ -1,0 +1,29 @@
+---
+
+- name: Install required packages
+  apt:
+    name:
+      - apt-transport-https
+      - binutils
+      - curl
+      - gcc
+      - g++
+      - git
+      - iptables
+      - mc
+      - net-tools
+      - network-manager
+      - tmux
+      - zsh
+      - python3-passlib
+      - python3-setuptools
+      - python3-pip
+      - sudo
+    update_cache: yes
+
+- name: Install python packages
+  pip:
+    name:
+      - jsondiff
+      - pyyaml
+      - openshift
